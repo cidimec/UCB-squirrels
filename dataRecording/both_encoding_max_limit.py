@@ -15,6 +15,18 @@ INSTRUCTIONS
 '''
 
 import depthai as dai
+from datetime import datetime
+
+# datetime object containing current date and time
+now = datetime.now()
+
+# dd/mm/YY_H:M:S
+date_time = now.strftime("%d-%m-%Y_%H:%M:%S")
+print("Recording: ", date_time)
+
+name1 = f'left_{date_time}.h264'
+name2 = f'color_{date_time}.h265'
+name3 = f'right_{date_time}.h264'
 
 pipeline = dai.Pipeline()
 
@@ -65,7 +77,7 @@ with dai.Device(pipeline) as dev:
     dev.startPipeline()
 
     # Processing loop
-    with open('mono1.h264', 'wb') as fileMono1H264, open('color.h265', 'wb') as fileColorH265, open('mono2.h264', 'wb') as fileMono2H264:
+    with open(name1, 'wb') as fileMono1H264, open(name2, 'wb') as fileColorH265, open(name3, 'wb') as fileMono2H264:
         print("Press Ctrl+C to stop encoding...")
         while True:
             try:
@@ -83,6 +95,6 @@ with dai.Device(pipeline) as dev:
 
     print("To view the encoded data, convert the stream file (.h264/.h265) into a video file (.mp4), using commands below:")
     cmd = "ffmpeg -framerate 25 -i {} -c copy {}"
-    print(cmd.format("mono1.h264", "mono1.mp4"))
-    print(cmd.format("mono2.h264", "mono2.mp4"))
-    print(cmd.format("color.h265", "color.mp4"))
+    print(cmd.format(name1, name1[:-3] + "mp4"))
+    print(cmd.format(name3, name3[:-3] + "mp4"))
+    print(cmd.format(name2, name2[:-3] + "mp4"))
