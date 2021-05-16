@@ -32,7 +32,7 @@ pipeline = dai.Pipeline()
 
 # Nodes
 colorCam = pipeline.createColorCamera()
-colorCam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_4_K)
+colorCam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
 monoCam = pipeline.createMonoCamera()
 monoCam2 = pipeline.createMonoCamera()
 ve1 = pipeline.createVideoEncoder()
@@ -52,7 +52,7 @@ ve3Out.setStreamName('ve3Out')
 
 # Setting to 26fps will trigger error
 ve1.setDefaultProfilePreset(1280, 720, 25, dai.VideoEncoderProperties.Profile.H264_MAIN)
-ve2.setDefaultProfilePreset(3840, 2160, 25, dai.VideoEncoderProperties.Profile.H265_MAIN)
+ve2.setDefaultProfilePreset(1920, 1080, 25, dai.VideoEncoderProperties.Profile.H265_MAIN)
 ve3.setDefaultProfilePreset(1280, 720, 25, dai.VideoEncoderProperties.Profile.H264_MAIN)
 
 # Link nodes
@@ -95,6 +95,6 @@ with dai.Device(pipeline) as dev:
 
     print("To view the encoded data, convert the stream file (.h264/.h265) into a video file (.mp4), using commands below:")
     cmd = "ffmpeg -framerate 25 -i {} -c copy {}"
-    print(cmd.format(name1, name1[:-3] + "mp4"))
-    print(cmd.format(name3, name3[:-3] + "mp4"))
-    print(cmd.format(name2, name2[:-3] + "mp4"))
+    print(cmd.format(name1, name1[:-4] + "mp4"))
+    print(cmd.format(name3, name3[:-4] + "mp4"))
+    print(cmd.format(name2, name2[:-4] + "mp4"))
