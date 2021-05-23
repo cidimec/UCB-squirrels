@@ -14,19 +14,25 @@ INSTRUCTIONS
     ffmpeg -framerate 25 -i [color].h265 -c copy [color].mp4
 '''
 
+import cv2
 import depthai as dai
+import os
+
 from datetime import datetime
 
 # datetime object containing current date and time
 now = datetime.now()
+start_time = datetime.now()
 
 # dd/mm/YY_H:M:S
 date_time = now.strftime("%d-%m-%Y_%H:%M:%S")
-print("Recording: ", date_time)
+print("Directory name: ", date_time)
+if not os.path.exists(date_time):
+    os.makedirs(date_time)
 
-name1 = f'left_{date_time}.h264'
-name2 = f'color_{date_time}.h265'
-name3 = f'right_{date_time}.h264'
+name1 = f'{date_time}/left.h264'
+name2 = f'{date_time}/color.h265'
+name3 = f'{date_time}/right.h264'
 
 pipeline = dai.Pipeline()
 
@@ -51,9 +57,9 @@ ve2Out.setStreamName('ve2Out')
 ve3Out.setStreamName('ve3Out')
 
 # Setting to 26fps will trigger error
-ve1.setDefaultProfilePreset(1280, 720, 25, dai.VideoEncoderProperties.Profile.H264_MAIN)
-ve2.setDefaultProfilePreset(1920, 1080, 25, dai.VideoEncoderProperties.Profile.H265_MAIN)
-ve3.setDefaultProfilePreset(1280, 720, 25, dai.VideoEncoderProperties.Profile.H264_MAIN)
+ve1.setDefaultProfilePreset(1280, 720, 30, dai.VideoEncoderProperties.Profile.H264_MAIN)
+ve2.setDefaultProfilePreset(1920, 1080, 30, dai.VideoEncoderProperties.Profile.H265_MAIN)
+ve3.setDefaultProfilePreset(1280, 720, 30, dai.VideoEncoderProperties.Profile.H264_MAIN)
 
 # Link nodes
 monoCam.out.link(ve1.input)
@@ -66,6 +72,8 @@ ve3.bitstream.link(ve3Out.input)
 
 
 # Pipeline is defined, now we can connect to the device
+# device = dai.Device(pipeline)
+# device.startPipeline()
 with dai.Device(pipeline) as dev:
 
     # Prepare data queues
@@ -78,9 +86,10 @@ with dai.Device(pipeline) as dev:
 
     # Processing loop
     with open(name1, 'wb') as fileMono1H264, open(name2, 'wb') as fileColorH265, open(name3, 'wb') as fileMono2H264:
-        print("Press Ctrl+C to stop encoding...")
         while True:
             try:
+                time_elapsed = datetime.now() - start_time
+                print('\r','Press Ctrl+C to stop encoding. Recording (hh:mm:ss.ms) {}'.format(time_elapsed), end='')
                 # Empty each queue
                 while outQ1.has():
                     outQ1.get().getData().tofile(fileMono1H264)

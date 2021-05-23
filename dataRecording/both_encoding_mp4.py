@@ -2,6 +2,7 @@
 
 import cv2
 import depthai as dai
+import os
 
 from datetime import datetime
 
@@ -10,11 +11,13 @@ now = datetime.now()
 
 # dd/mm/YY_H:M:S
 date_time = now.strftime("%d-%m-%Y_%H:%M:%S")
-print("Recording: ", date_time)
+print("Directory name: ", date_time)
+if not os.path.exists(date_time):
+    os.makedirs(date_time)
 
-name1 = f'left_{date_time}.mp4'
-name2 = f'color_{date_time}.mp4'
-name3 = f'right_{date_time}.mp4'
+name1 = f'{date_time}/left_{date_time}.mp4'
+name2 = f'{date_time}/color_{date_time}.mp4'
+name3 = f'{date_time}/right_{date_time}.mp4'
 
 # Start defining a pipeline
 pipeline = dai.Pipeline()
@@ -62,54 +65,56 @@ outcolor = cv2.VideoWriter(name2, cv2.VideoWriter_fourcc(*'MPEG'), 30, camRgb.ge
 outright = cv2.VideoWriter(name3, cv2.VideoWriter_fourcc(*'MPEG'), 30, camRight.getResolutionSize(), 0)
 
 # Pipeline is defined, now we can connect to the device
-with dai.Device(pipeline) as device:
+# with dai.Device(pipeline) as device:
     # Start pipeline
-    device.startPipeline()
+    # device.startPipeline()
+device = dai.Device(pipeline)
+device.startPipeline()
 
-    # Output queue will be used to get the rgb frames from the output defined above
-    qRgb = device.getOutputQueue(name="rgb", maxSize=30, blocking=False)
-    qLeft = device.getOutputQueue(name="left", maxSize=30, blocking=False)
-    qRight = device.getOutputQueue(name="right", maxSize=30, blocking=False)
+# Output queue will be used to get the rgb frames from the output defined above
+qRgb = device.getOutputQueue(name="rgb", maxSize=30, blocking=False)
+qLeft = device.getOutputQueue(name="left", maxSize=30, blocking=False)
+qRight = device.getOutputQueue(name="right", maxSize=30, blocking=False)
 
-    frameRgb = None
-    frameLeft = None
-    frameRight = None
+frameRgb = None
+frameLeft = None
+frameRight = None
 
-    while True:
-        try:
-            inRgb = qRgb.tryGet()
-            # print(qRgb.get().getData().shape)
-            inLeft = qLeft.tryGet()
-            inRight = qRight.tryGet()
-            if inRgb is not None:
-                frameRgb = inRgb.getCvFrame()
-                # frameRgb = bytearray(inRgb.getData())
+while True:
+    try:
+        inRgb = qRgb.tryGet()
+        # print(qRgb.get().getData().shape)
+        inLeft = qLeft.tryGet()
+        inRight = qRight.tryGet()
+        if inRgb is not None:
+            frameRgb = inRgb.getCvFrame()
+            # frameRgb = bytearray(inRgb.getData())
 
-            if inLeft is not None:
-                frameLeft = inLeft.getCvFrame()
+        if inLeft is not None:
+            frameLeft = inLeft.getCvFrame()
 
-            if inRight is not None:
-                frameRight = inRight.getCvFrame()
+        if inRight is not None:
+            frameRight = inRight.getCvFrame()
 
-            # Retrieve 'bgr' (opencv format) frame
-            # show the frames if available
-            if frameRgb is not None:
-                # cv2.imshow("bgr", frameRgb)
-                outcolor.write(frameRgb)
+        # Retrieve 'bgr' (opencv format) frame
+        # show the frames if available
+        if frameRgb is not None:
+            # cv2.imshow("bgr", frameRgb)
+            outcolor.write(frameRgb)
 
-            if frameLeft is not None:
-                # cv2.imshow("left", frameLeft)
-                outleft.write(frameLeft)
+        if frameLeft is not None:
+            # cv2.imshow("left", frameLeft)
+            outleft.write(frameLeft)
 
-            if frameRight is not None:
-                # cv2.imshow("right", frameRight)
-                outright.write(frameRight)
+        if frameRight is not None:
+            # cv2.imshow("right", frameRight)
+            outright.write(frameRight)
 
-            if cv2.waitKey(1) == ord('q'):
-                break
-
-        except KeyboardInterrupt:
-            outcolor.release()
-            outleft.release()
-            outright.release()
+        if cv2.waitKey(1) == ord('q'):
             break
+
+    except KeyboardInterrupt:
+        outcolor.release()
+        outleft.release()
+        outright.release()
+        break
