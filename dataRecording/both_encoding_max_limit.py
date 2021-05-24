@@ -99,6 +99,9 @@ with dai.Device(pipeline) as dev:
 
                 while outQ3.has():
                     outQ3.get().getData().tofile(fileMono2H264)
+
+                if time_elapsed.total_seconds() > 60:
+                    break
             except KeyboardInterrupt:
                 break
 
