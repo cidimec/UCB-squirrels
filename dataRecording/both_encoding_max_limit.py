@@ -100,13 +100,13 @@ with dai.Device(pipeline) as dev:
                 while outQ3.has():
                     outQ3.get().getData().tofile(fileMono2H264)
 
-                if time_elapsed.total_seconds() > 60:
+                if time_elapsed.total_seconds() > 120:
                     break
             except KeyboardInterrupt:
                 break
 
     print("To view the encoded data, convert the stream file (.h264/.h265) into a video file (.mp4), using commands below:")
-    cmd = "ffmpeg -framerate 25 -i {} -c copy {}"
+    cmd = "ffmpeg -framerate 30 -i {} -c copy {}"
     print(cmd.format(name1, name1[:-4] + "mp4"))
     print(cmd.format(name3, name3[:-4] + "mp4"))
     print(cmd.format(name2, name2[:-4] + "mp4"))
