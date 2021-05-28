@@ -9,7 +9,7 @@ permalink:        pretty
 title:            UCB-Squirrels
 tagline:          'A CIDIMEC group for Computer Vision research based on OAK-D devices for the OpenCV AI Competition'
 description:      'A CIDIMEC group for Computer Vision research based on OAK-D devices for the OpenCV AI Competition'
-url:              http://hyde.getpoole.com
+url:              https://cidimec.github.io/UCB-squirrels/
 baseurl:          /
 
 remote-theme:     poole/hyde
