@@ -12,6 +12,8 @@ description:      'A brazen two-column <a href="http://jekyllrb.com" target="_bl
 url:              http://hyde.getpoole.com
 baseurl:          /
 
+remote-theme:     poole/hyde
+
 author:
   name:           'Mark Otto'
   url:            https://twitter.com/mdo
