@@ -59,8 +59,7 @@ Go to UCB-squirrels/dataRecording and run `python both_encoding_max_limit.py`
 The encoded videos will be saved in a new directory named with the current time in `.h265` and `.h264` format.
 
 ## Authors
-* [Israel Tiñini Alvarez](mailto:i.tinini.a@gmail.com)
-
+* Israel Tiñini Alvarez [email](mailto:ir.tinini@acad.ucb.edu.bo) [Linkedin](https://www.linkedin.com/in/isratial/)
 <!-- ## Cite This Project
 
 If you use this project in your research or wish to refer to the baseline results published in the README, please use the following BibTeX entry.
