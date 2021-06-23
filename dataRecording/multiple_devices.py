@@ -5,6 +5,13 @@ import depthai as dai
 import contextlib
 import utils
 import os
+from datetime import datetime
+
+#  Create a directory with the current time
+time = utils.current()
+directory = utils.checkFileExist(time, create=True)
+start_time = datetime.now()
+
 # Start defining a pipeline
 pipeline = dai.Pipeline()
 
@@ -29,7 +36,7 @@ with contextlib.ExitStack() as stack:
     for device_info in dai.Device.getAllAvailableDevices():
         device = stack.enter_context(dai.Device(pipeline, device_info))
         id = device_info.getMxId()
-        dir_path = utils.checkFileExist(id, True)
+        dir_path = utils.checkFileExist(os.path.join(directory, id), create=True)
         paths_list.append(dir_path)
         print("Conected to " + id)
         device.startPipeline()
@@ -39,15 +46,19 @@ with contextlib.ExitStack() as stack:
         q_rgb_list.append(q_rgb)
 
     while True:
+        time_elapsed = datetime.now() - start_time
+        print('\r', 'Press key q to stop encoding. Recording (hh:mm:ss.ms) {}'.format(time_elapsed), end='')
         for i, (q_rgb, dir_path) in enumerate(zip(q_rgb_list, paths_list)):
             in_rgb = q_rgb.tryGet()
             if in_rgb is not None:
                 name = 'rgb-' + str(n_frame + 1).zfill(5) + '.png'
-                path = os.path.join(dir_path, name)
+                path = os.path.join(directory, dir_path, name)
+                # print(path)
                 frame = in_rgb.getCvFrame()
                 cv2.imshow("rgb-" + str(i + 1), frame)
                 cv2.imwrite(path, frame)
                 n_frame +=1
 
         if cv2.waitKey(1) == ord('q'):
+            print("")
             break

@@ -54,17 +54,29 @@ cd examples
 
 
 ## Usage
-Go to UCB-squirrels/dataRecording and run `python both_encoding_max_limit.py`
-
-The encoded videos will be saved in a new directory named with the current time in `.h265` and `.h264` format.
+### Save video files in encoded format
+Go to UCB-squirrels/dataRecording and run `python video_encoding.py`. The encoded videos will be saved in a new directory in `.h265` and `.h264` format.
+#### Optional arguments:
+```
+-h, --help            show this help message and exit
+-dir DIRECTORY, --directory DIRECTORY
+                      Directory where the videos are stored
+-rgb C_RES, --c_res C_RES
+                      RGB camera resolution height: (1920x)1080, (3840x)2160 or (4056x)3040. Default: 1080
+-mono M_RES, --m_res M_RES
+                      Mono cam resolution height: (1280x)720, (1280x)800 or (640x)400. Default: 720
+-f FPS, --fps FPS     Defines the output frame rate. Default: 30
+-sec SEC, --sec SEC   Defines the time (seconds) that the videos will be recorded. Default: 30
+-v VERB, --verb VERB  Defines the output verbosity
+```
 
 ## Authors
 * Israel Tiñini Alvarez [email](mailto:ir.tinini@acad.ucb.edu.bo) [Linkedin](https://www.linkedin.com/in/isratial/)
-<!-- ## Cite This Project
+## Cite This Project
 
-If you use this project in your research or wish to refer to the baseline results published in the README, please use the following BibTeX entry.
+If you use this resource in your project or wish to refer to this repository `https://github.com/cidimec/UCB-squirrels`
 
-```bash
+<!-- ```bash
 @misc{relabeller,
   author =       {Israel Tiñini and Benjamin Pinaya},
   title =        {},

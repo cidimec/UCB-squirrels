@@ -1,3 +1,5 @@
 *.h26*
 *.mp4
 *.jpeg
+*.txt
+/__pycache__
