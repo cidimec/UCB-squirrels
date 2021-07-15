@@ -3,4 +3,4 @@
 *.png
 *.jpeg
 *.ipynb_checkpoints
-*.
+__pycache__/
