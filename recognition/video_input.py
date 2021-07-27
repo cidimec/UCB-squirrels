@@ -14,7 +14,7 @@ from utils.backgroundSubtraction import bsub
 
 nnPath = '../models/mobilenet-ssd_openvino_2021.2_8shave.blob'
 videoPath = '../data/videos/001-nm-01-090.avi'
-videoPath = '/home/israel/Downloads/CASIA/DatasetB-1/video/001-nm-01-090.avi'
+videoPath = '/home/israel/Downloads/CASIA/DatasetB-1/video/002-nm-01-090.avi'
 id_label = int(videoPath.split('/')[-1].split('-')[0])
 bsub = bsub()
 

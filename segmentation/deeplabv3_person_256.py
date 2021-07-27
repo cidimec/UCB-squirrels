@@ -94,13 +94,11 @@ if cam_source in cam_options[1:]:
 xout_rgb = pipeline.createXLinkOut()
 xout_rgb.setStreamName("nn_input")
 xout_rgb.input.setBlocking(False)
-
 detection_nn.passthrough.link(xout_rgb.input)
 
 xout_nn = pipeline.createXLinkOut()
 xout_nn.setStreamName("nn")
 xout_nn.input.setBlocking(False)
-
 detection_nn.out.link(xout_nn.input)
 
 # Pipeline defined, now the device is assigned and pipeline is started

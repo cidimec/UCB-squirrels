@@ -4,3 +4,5 @@
 *.jpeg
 *.ipynb_checkpoints
 __pycache__/
+160x*
+128x*
