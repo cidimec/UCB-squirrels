@@ -12,8 +12,8 @@ sys.path.append(os.path.abspath('../'))
 from utils.backgroundSubtraction import bsub
 # sys.path.append(os.path.abspath('../recognition'))
 
-nnPath = '../models/mobilenet-ssd_openvino_2021.2_6shave.blob'
-videoPath = '/home/israel/Downloads/CASIA/DatasetB-1/video/003-nm-01-090.avi'
+nnPath = '../models/mobilenet-ssd_openvino_2021.2_8shave.blob'
+videoPath = '/home/israel/Downloads/CASIA/DatasetB-1/video/062-cl-01-090.avi'
 id_label = int(videoPath.split('/')[-1].split('-')[0])
 bsub = bsub()
 
@@ -35,7 +35,7 @@ nn.input.setBlocking(False)
 
 # Define a source - color camera
 cam_options = ['rgb', 'left', 'right']
-cam_source = 'rgb'
+cam_source = 'vid'
 if cam_source == 'rgb':
     cam = pipeline.createColorCamera()
     cam.setPreviewSize(nn_shape, nn_shape)
@@ -100,7 +100,8 @@ frames_counter = 0
 frame = None
 detections = []
 
-
+font = cv2.FONT_ITALIC
+colors = {'white':(255, 255, 255), 'red':(0,0,255), 'green':(0, 255, 0),'blue':(255, 0, 0)}
 # nn data, being the bounding box locations, are in <0..1> range - they need to be normalized with frame width/height
 def frameNorm(frame, bbox):
     normVals = np.full(len(bbox), frame.shape[0])
@@ -121,24 +122,22 @@ def displayFrame(name, frame):
         # cv2.putText(frame, labelMap[detection.label], (bbox[0] + 10, bbox[1] + 20), cv2.FONT_ITALIC, 0.5, 255)
         # cv2.putText(frame, f"{int(detection.confidence * 100)}%", (bbox[0] + 10, bbox[1] + 40), cv2.FONT_ITALIC, 0.5, 255)
         label = 'ID: {}, PRED: {}'.format(id_label, int(bsub.classID))
-        cv2.putText(frame, label, (bbox[0], bbox[1] - 7), cv2.FONT_ITALIC, 0.5, 255)
-        cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (255, 0, 0), 2)
-    cv2.putText(frame, "Cam fps: {:.2f}".format(frames_counter / (monotonic() - startTime)),
-                (2, frame.shape[0] - 15), cv2.FONT_ITALIC, 0.4, (255, 255, 255))
-    cv2.putText(frame, "NN fps: {:.2f}".format(nn_counter / (monotonic() - startTime)),
-                (2, frame.shape[0] - 4), cv2.FONT_ITALIC, 0.4, (255, 255, 255))
+        color = colors['green'] if id_label == int(bsub.classID) else colors['red']
+        cv2.putText(frame, label, (bbox[0], bbox[1] - 7), font, 0.5, color)
+        cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, 2)
+    cv2.putText(frame, "Cam fps: {:.2f}".format(frames_counter / (monotonic() - startTime)), (2, frame.shape[0] - 15), font, 0.4, colors['white'])
+    cv2.putText(frame, "NN fps: {:.2f}".format(nn_counter / (monotonic() - startTime)), (2, frame.shape[0] - 4), font, 0.4, colors['white'])
     if bsub.bg is None:
         bsub.setBackound(current)
         background = np.zeros_like(current)
     elif bbox is not None:
-        background, roi = bsub.substract(current, bbox)
+        roi = bsub.substract(current, bbox, mode='naive')
     # Show the frame
     cv2.imshow(name, frame)
     if roi is not None:
-        cv2.imshow('background', background)
+        # cv2.imshow('background', background)
         cv2.imshow('roi', roi)
 
-font = cv2.FONT_ITALIC
 def displayMob(name, frame):
     color = (255, 0, 0)
     for detection in detections:

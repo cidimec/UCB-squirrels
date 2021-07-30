@@ -25,6 +25,9 @@ parser.add_argument("-rgb", "--c_res", type=int, default=1080, help="RGB camera 
 parser.add_argument("-mono", "--m_res", type=int, default=720, help="Mono cam resolution height: (1280x)720, (1280x)800 or (640x)400. Default: 720")
 parser.add_argument("-f", "--fps", type=int, default=30, action='store', help="Defines the output frame rate. Default: 30")
 parser.add_argument("-sec", "--sec", type=int, default=30, action='store', help="Defines the time (seconds) that the videos will be recorded. Default: 30")
+parser.add_argument("-id", "--subject", type=str, default=None, help="Defines the subject's name (Optinal)")
+parser.add_argument("-w", "--walk", type=str, default=None, help="Defines the walking type (Optional)")
+
 parser.add_argument("-v", "--verb", type=int, default=0, help="Defines the output verbosity")
 args = parser.parse_args()
 
@@ -53,13 +56,16 @@ else:
 
 # Create a directory with the current time
 if args.directory is None:
-    time = utils.current()
-    directory = utils.checkFileExist(time, create=True)
+    name = utils.current()
+    if args.subject is not None:
+        name = f'{name[:-1]}_id:{args.subject}_walk:{args.walk}/'
+    directory = utils.checkFileExist(name, create=True)
     dir_name = directory.split('/')[-2]
 
 else:
     directory = utils.checkFileExist(args.directory, create=True)
     dir_name = directory.split('/')[-1]
+
 
 print(f'Configuration-> Folder:{dir_name} Color resolution: {color_shape}, Mono resolution: {mono_shape}, FPS: {fps}')
 
@@ -143,7 +149,7 @@ with open(name1, 'wb') as fileMono1H264, open(name2, 'wb') as fileColorH265, ope
             while outQ3.has():
                 outQ3.get().getData().tofile(fileMono2H264)
             if time_elapsed.total_seconds() > args.sec:
-                print('Limit ')
+                print('Stopping recording due to time limit')
                 break
         except KeyboardInterrupt:
             break

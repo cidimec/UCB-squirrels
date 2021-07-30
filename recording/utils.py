@@ -5,7 +5,7 @@ import os
 def current():
     # datetime object containing current date and time
     now = datetime.now()    # dd/mm/YY_H:M:S
-    date_time = now.strftime("%d-%m-%Y_%H.%M.%S/")
+    date_time = now.strftime("%d.%m.%Y_%H.%M.%S/")
     return date_time
 
 
