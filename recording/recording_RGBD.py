@@ -148,9 +148,9 @@ with open(name1, 'wb') as fileMono1H264, open(name2, 'wb') as fileColorH265, ope
                 outQ2.get().getData().tofile(fileColorH265)
             while outQ3.has():
                 outQ3.get().getData().tofile(fileMono2H264)
-            if time_elapsed.total_seconds() > args.sec:
-                print('Stopping recording due to time limit')
-                break
+            # if time_elapsed.total_seconds() > args.sec:
+            #     print('Stopping recording due to time limit')
+            #     break
         except KeyboardInterrupt:
             break
 
