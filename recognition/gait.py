@@ -13,7 +13,7 @@ from utils.backgroundSubtraction import bsub
 # sys.path.append(os.path.abspath('../recognition'))
 
 nnPath = '../models/mobilenet-ssd_openvino_2021.2_8shave.blob'
-videoPath = '/home/israel/Downloads/CASIA/DatasetB-1/video/062-cl-01-090.avi'
+videoPath = '/home/israel/Downloads/CASIA/DatasetB-1/video/001-bg-01-090.avi'
 id_label = int(videoPath.split('/')[-1].split('-')[0])
 bsub = bsub()
 
@@ -85,6 +85,8 @@ device = dai.Device(pipeline)
 if cam_source not in cam_options:
     qIn = device.getInputQueue(name="inFrame")
     cap = cv2.VideoCapture(videoPath)
+    frame_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    frame_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     delay = int(1000 / fps)
 
@@ -102,7 +104,15 @@ detections = []
 
 font = cv2.FONT_ITALIC
 colors = {'white':(255, 255, 255), 'red':(0,0,255), 'green':(0, 255, 0),'blue':(255, 0, 0)}
+
+codec = cv2.VideoWriter_fourcc('M','J','P','G')
+fwidth = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+fheight = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+fps = int(cap.get(cv2.CAP_PROP_FPS))
+clip_name = f'bg-{id_label}.avi'
+out = cv2.VideoWriter(clip_name, codec, fps, (fwidth,fheight))
 # nn data, being the bounding box locations, are in <0..1> range - they need to be normalized with frame width/height
+
 def frameNorm(frame, bbox):
     normVals = np.full(len(bbox), frame.shape[0])
     normVals[::2] = frame.shape[1]
@@ -116,7 +126,7 @@ def to_planar(arr: np.ndarray, shape: tuple) -> np.ndarray:
 def displayFrame(name, frame):
     current = frame.copy()
     bbox = None
-    roi = None
+    roi = np.zeros((64, 64, 3))
     for detection in detections:
         bbox = frameNorm(frame, (detection.xmin, detection.ymin, detection.xmax, detection.ymax))
         # cv2.putText(frame, labelMap[detection.label], (bbox[0] + 10, bbox[1] + 20), cv2.FONT_ITALIC, 0.5, 255)
@@ -125,18 +135,22 @@ def displayFrame(name, frame):
         color = colors['green'] if id_label == int(bsub.classID) else colors['red']
         cv2.putText(frame, label, (bbox[0], bbox[1] - 7), font, 0.5, color)
         cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, 2)
-    cv2.putText(frame, "Cam fps: {:.2f}".format(frames_counter / (monotonic() - startTime)), (2, frame.shape[0] - 15), font, 0.4, colors['white'])
-    cv2.putText(frame, "NN fps: {:.2f}".format(nn_counter / (monotonic() - startTime)), (2, frame.shape[0] - 4), font, 0.4, colors['white'])
+    # cv2.putText(frame, "Cam fps: {:.2f}".format(frames_counter / (monotonic() - startTime)), (2, frame.shape[0] - 15), font, 0.4, colors['white'])
+    cv2.putText(frame, "Fps: {:.2f}".format(nn_counter / (monotonic() - startTime)), (2, frame.shape[0] - 4), font, 0.4, colors['white'])
     if bsub.bg is None:
         bsub.setBackound(current)
         background = np.zeros_like(current)
     elif bbox is not None:
         roi = bsub.substract(current, bbox, mode='naive')
+        roi = cv2.resize(roi, (64, 64), cv2.INTER_AREA)
+        roi = cv2.cvtColor(roi, cv2.COLOR_GRAY2BGR)
+        frame[-64:,-64:] = roi.copy()
     # Show the frame
     cv2.imshow(name, frame)
-    if roi is not None:
+    # out.write(frame)
+    # if roi is not None:
         # cv2.imshow('background', background)
-        cv2.imshow('roi', roi)
+        # cv2.imshow('roi', roi)
 
 def displayMob(name, frame):
     color = (255, 0, 0)
@@ -200,3 +214,4 @@ while True:
 if cam_source not in cam_options:
     cv2.destroyAllWindows()
     cap.release()
+    out.release()

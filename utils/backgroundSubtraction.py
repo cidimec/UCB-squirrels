@@ -50,7 +50,7 @@ class bsub:
         output = self.model.predict(tf.expand_dims(tf_image, 0))
         output = tf.image.resize(output, (h, w))
     #     output = model.predict(tf.stack([tf_image, tf_image, tf_image, tf_image, tf_image]))
-        out = np.where(output[0, :, :, 0]>0.2, 1, 0)
+        out = np.where(output[0, :, :, 0]>0.4, 1, 0)
         # out = cv2.resize(out, (w, h), cv2.INTER_LINEAR)
         return (out * 255).astype('uint8')
 
