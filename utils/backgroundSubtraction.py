@@ -1,9 +1,10 @@
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
-import os
 from utils import LDA
 import tensorflow as tf
+config = tf.compat.v1.ConfigProto()
+config.gpu_options.allow_growth = True
+session = tf.compat.v1.Session(config=config)
 
 class bsub:
     def __init__(self):
@@ -13,7 +14,6 @@ class bsub:
         self.dir = 'test'
         self.margin = 30
         self.classID = 0
-
         self.model = tf.keras.models.load_model('../models/bestDB/128x128_acc_0.9471_loss_0.0605_val-acc_0.9476_val-loss_0.0586_0.22M_29-07-21-DB-best')
 
     def setBackound(self, frame):
@@ -35,22 +35,24 @@ class bsub:
         # print(roi_mask.shape, roi_mask.dtype, type(roi_mask))
         self.silhouettes.append(roi_mask)
         # path = os.path.join(self.dir, str(self.num_sil))
-        # cv2.imwrite(path+ '.png', roi)
+        cv2.imwrite(str(self.num_sil)+ '.png', roi_mask)
         self.num_sil +=1
         if self.num_sil % 10 == 0:
             GEI, _ = LDA.GEI_generator(self.silhouettes)
+            # cv2.imwrite(f'{self.num_sil}.png', GEI)
             self.classID = LDA.inference(GEI)
             print(self.classID)
         return roi_mask
 
     def inference(self, img, width=128, height=128):
         h, w, _ = img.shape
+        # print(img.shape)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         tf_image = tf.image.resize(tf.convert_to_tensor(np.array(img)), (width, height))/ 255
         output = self.model.predict(tf.expand_dims(tf_image, 0))
         output = tf.image.resize(output, (h, w))
     #     output = model.predict(tf.stack([tf_image, tf_image, tf_image, tf_image, tf_image]))
-        out = np.where(output[0, :, :, 0]>0.4, 1, 0)
+        out = np.where(output[0, :, :, 0]>0.6, 1, 0)
         # out = cv2.resize(out, (w, h), cv2.INTER_LINEAR)
         return (out * 255).astype('uint8')
 

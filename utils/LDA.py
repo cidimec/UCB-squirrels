@@ -62,7 +62,7 @@ def GEI_generator(sil_file, size=100, debug=False):
     else:
         GEI = np.mean(np.array(stack_GEI), axis=0)
 
-    GEI[int(size*0.12):int(size*0.68),0:y1]=0
+    # GEI[int(size*0.12):int(size*0.68),:]=0
     return GEI, stack_GEI
 
 
