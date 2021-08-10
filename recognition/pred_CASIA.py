@@ -10,7 +10,7 @@ from utils.backgroundSubtraction import bsub
 # sys.path.append(os.path.abspath('../recognition'))
 
 nnPath = '../models/mobilenet-ssd_openvino_2021.2_8shave.blob'
-videoPath = '../data/videos/001-bg-01-090.avi'
+videoPath = '../data/videos/001-cl-01-090.avi'
 # videoPath = '/home/israel/Downloads/OAK/j2/05.08.2021_12.42.19_id:carlos1_walk:nm/color_video.mp4'
 id_label = int(videoPath.split('/')[-1].split('-')[0])
 # id_label = 1
@@ -104,12 +104,12 @@ detections = []
 font = cv2.FONT_ITALIC
 colors = {'white':(255, 255, 255), 'red':(0,0,255), 'green':(0, 255, 0),'blue':(255, 0, 0)}
 
-# codec = cv2.VideoWriter_fourcc('M','P','4','V')
-# fwidth = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-# fheight = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-# fps = int(cap.get(cv2.CAP_PROP_FPS))
-# clip_name = 'OAK-test.mp4'
-# out = cv2.VideoWriter(clip_name, codec, fps, (fwidth//4,fheight//4))
+codec = cv2.VideoWriter_fourcc(*'XVID')
+fwidth = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+fheight = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+fps = int(cap.get(cv2.CAP_PROP_FPS))
+clip_name = '001-cl.mp4'
+out = cv2.VideoWriter(clip_name, codec, fps, (fwidth, fheight))
 
 def frameNorm(frame, bbox):
     normVals = np.full(len(bbox), frame.shape[0])
@@ -140,13 +140,13 @@ def displayFrame(name, frame):
         bsub.setBackound(current)
         background = np.zeros_like(current)
     elif bbox is not None:
-        roi = bsub.substract(current, bbox, mode='deep')
+        roi = bsub.substract(current, bbox, mode='naive')
         roi = cv2.resize(roi, (64, 64), cv2.INTER_AREA)
         roi = cv2.cvtColor(roi, cv2.COLOR_GRAY2BGR)
         frame[-64:,-64:] = roi.copy()
     # Show the frame
-    cv2.imshow(name, frame)
-    # out.write(frame)
+    # cv2.imshow(name, frame)
+    out.write(frame)
     # if roi is not None:
         # cv2.imshow('roi', roi)
 
@@ -188,4 +188,4 @@ while True:
 if cam_source not in cam_options:
     cv2.destroyAllWindows()
     cap.release()
-    # out.release()
+    out.release()

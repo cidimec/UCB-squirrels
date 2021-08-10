@@ -16,6 +16,7 @@ labelMap = ["background", "aeroplane", "bicycle", "bird", "boat", "bottle", "bus
             "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
 # video_path = '/home/israel/Downloads/UCB/clips/090/007/nm/nm-01.avi'
 videoPath = '../data/videos/001-bg-01-090.avi'
+video_path = '/home/israel/Downloads/OAKD_8S/clips/090/002/nm/nm-04.avi'
 
 # video_path = '/home/israel/Downloads/CASIA/DatasetB-2/video/001-bg-01-090.avi'
 # video_path = '/home/israel/Downloads/CASIA/DatasetB-1/video/001-nm-01-090.avi'
@@ -23,10 +24,10 @@ videoPath = '../data/videos/001-bg-01-090.avi'
 input = 'vid'
 
 if input == 'cam':
-    nn1blob = '../models/mobilenet-ssd_openvino_2021.4_6shave.blob'
+    nn1blob = '../models/mobilenet-ssd_openvino_2021.2_6shave.blob'
     # nn2blob = '/home/israel/Downloads/frozen_graph.blob'
 elif input == 'vid':
-    nn1blob = '../models/mobilenet-ssd_openvino_2021.4_8shave.blob'
+    nn1blob = '../models/mobilenet-ssd_openvino_2021.2_8shave.blob'
     # nn2blob = '/home/israel/Downloads/frozen_graph.blob'
 
 # nn2blob = '../models/unet8shaves.blob'
@@ -82,6 +83,8 @@ def colorCast(img):
 
 # Start defining a pipeline
 pipeline = dai.Pipeline()
+pipeline.setOpenVINOVersion(dai.OpenVINO.Version.VERSION_2021_2)
+
 
 detection_nn = pipeline.createMobileNetDetectionNetwork()
 detection_nn.setConfidenceThreshold(0.5)
@@ -185,7 +188,7 @@ with dai.Device(pipeline) as device:
             copied = frame.copy()
             # one detection has 7 numbers, and the last detection is followed by -1 digit, which later is filled with 0
             inDet = q_det.get()
-            if inDet is not None:
+            if inDet is not None and nn1%1==0:
                 detections = inDet.detections
                 if len(detections)>0:
                     for detection in detections:
@@ -236,17 +239,17 @@ with dai.Device(pipeline) as device:
                 mask = cv2.resize(mask, (w, h), cv2.INTER_CUBIC)
                 mask = mask[5:h-5, 5:w-5]
                 # print(org_size)
-                mask = fine_mask(mask)
+                # mask = fine_mask(mask)
                 # h, w = mask.shape
 
-                # silhouettes.append(mask)
-                # # cv2.imwrite(f'{nsil}.png',mask)
-                # nsil +=1
-                # if nsil % 10 == 0:
-                #     GEI, _ = LDA.GEI_generator(silhouettes)
-                #     cv2.imwrite(f'{nsil}.png',GEI)
-                #     classID = LDA.inference(GEI)
-                #     print(classID)
+                silhouettes.append(mask)
+                # cv2.imwrite(f'{nsil}.png',mask)
+                nsil +=1
+                if nsil % 10 == 0:
+                    GEI, _ = LDA.GEI_generator(silhouettes)
+                    # cv2.imwrite(f'{nsil}.png',GEI)
+                    classID = LDA.inference(GEI)
+                    print(classID)
                 # if 10<mask.mean() and mask.mean()<150:
                 cv2.imshow('out', mask)
 

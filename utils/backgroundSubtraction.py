@@ -14,11 +14,21 @@ class bsub:
         self.dir = 'test'
         self.margin = 30
         self.classID = 0
-        self.model = tf.keras.models.load_model('../models/bestDB/128x128_acc_0.9471_loss_0.0605_val-acc_0.9476_val-loss_0.0586_0.22M_29-07-21-DB-best')
+        # self.model = tf.keras.models.load_model('../models/bestDB/128x128_acc_0.9471_loss_0.0605_val-acc_0.9476_val-loss_0.0586_0.22M_29-07-21-DB-best')
+        # self.model = tf.keras.models.load_model('../models/UCB300/128x128unet_acc:0.9540_loss:0.0590_val-acc:0.9538_val-loss:0.0594_0.22M_01-08-21-DB_UCB300_E:10x1E-4:5x1E-5')
+        self.model = tf.keras.models.load_model('../models/UCB300/128x128_acc_0.9549_loss_0.0886_val-acc_0.9554_val-loss_0.0873_0.22M_01-08-21-DB_UCB300_E_10x1E-4_5x1E-5')
 
     def setBackound(self, frame):
         self.bg = frame
         self.height, self.width, _ = frame.shape
+
+    def fine_mask(self, mask):
+        ''' Takes a raw mask as input and returns the biggest contour mask '''
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        c = max(contours, key=cv2.contourArea)
+        out = np.zeros_like(mask)
+        out = cv2.drawContours(out, [c], 0, 255, -1)
+        return out
 
     def substract(self, frame, bbox, mode='naive'):
         if mode == 'naive':
@@ -32,12 +42,13 @@ class bsub:
             col1, row1, col2, row2 = self.limit_bbox(bbox)
             roi = frame[row1: row2, col1: col2]
             roi_mask = self.inference(roi)
+            # roi_mask = self.fine_mask(roi_mask)
         # print(roi_mask.shape, roi_mask.dtype, type(roi_mask))
         self.silhouettes.append(roi_mask)
         # path = os.path.join(self.dir, str(self.num_sil))
-        cv2.imwrite(str(self.num_sil)+ '.png', roi_mask)
+        # cv2.imwrite(str(self.num_sil)+ '.png', roi_mask)
         self.num_sil +=1
-        if self.num_sil % 10 == 0:
+        if self.num_sil % 15 == 0:
             GEI, _ = LDA.GEI_generator(self.silhouettes)
             # cv2.imwrite(f'{self.num_sil}.png', GEI)
             self.classID = LDA.inference(GEI)

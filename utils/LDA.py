@@ -6,12 +6,15 @@ import os
 
 print(os.getcwd())
 
-model = load(open('model.pkl', 'rb'))
-scaler = load(open('scaler.pkl', 'rb'))
-pca = load(open('pca.pkl', 'rb'))
+# model = load(open('model.pkl', 'rb'))
+# scaler = load(open('scaler.pkl', 'rb'))
+# pca = load(open('pca.pkl', 'rb'))
 
+model = load(open('OAKD8S_model.pkl', 'rb'))
+scaler = load(open('OAKD8S_scaler.pkl', 'rb'))
+pca = load(open('OAKD8S_pca.pkl', 'rb'))
 
-def GEI_generator(sil_file, size=100, debug=False):
+def GEI_generator(sil_file, size=64, debug=False):
     stack_GEI = []
     lenfiles = len(sil_file)
     if debug:
