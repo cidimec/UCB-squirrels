@@ -11,16 +11,22 @@ class bsub:
         self.silhouettes = []
         self.num_sil = 0
         self.bg = None
-        self.dir = 'test'
-        self.margin = 30
+        self.margin = 10
         self.classID = 0
+        self.pred_list = []
         # self.model = tf.keras.models.load_model('../models/bestDB/128x128_acc_0.9471_loss_0.0605_val-acc_0.9476_val-loss_0.0586_0.22M_29-07-21-DB-best')
-        # self.model = tf.keras.models.load_model('../models/UCB300/128x128unet_acc:0.9540_loss:0.0590_val-acc:0.9538_val-loss:0.0594_0.22M_01-08-21-DB_UCB300_E:10x1E-4:5x1E-5')
-        self.model = tf.keras.models.load_model('../models/UCB300/128x128_acc_0.9549_loss_0.0886_val-acc_0.9554_val-loss_0.0873_0.22M_01-08-21-DB_UCB300_E_10x1E-4_5x1E-5')
+        self.model = tf.keras.models.load_model('../models/UCB300/128x128unet_acc:0.9540_loss:0.0590_val-acc:0.9538_val-loss:0.0594_0.22M_01-08-21-DB_UCB300_E:10x1E-4:5x1E-5')
+        # self.model = tf.keras.models.load_model('../models/UCB300/128x128_acc_0.9549_loss_0.0886_val-acc_0.9554_val-loss_0.0873_0.22M_01-08-21-DB_UCB300_E_10x1E-4_5x1E-5')
 
     def setBackound(self, frame):
         self.bg = frame
         self.height, self.width, _ = frame.shape
+
+    def clear(self):
+        self.silhouettes = []
+        self.pred_list = []
+        self.num_sil = 0
+        # self.bg = None
 
     def fine_mask(self, mask):
         ''' Takes a raw mask as input and returns the biggest contour mask '''
@@ -51,7 +57,8 @@ class bsub:
         if self.num_sil % 15 == 0:
             GEI, _ = LDA.GEI_generator(self.silhouettes)
             # cv2.imwrite(f'{self.num_sil}.png', GEI)
-            self.classID = LDA.inference(GEI)
+            self.classID = int(LDA.inference(GEI)[0])
+            self.pred_list.append(self.classID)
             print(self.classID)
         return roi_mask
 
@@ -63,7 +70,7 @@ class bsub:
         output = self.model.predict(tf.expand_dims(tf_image, 0))
         output = tf.image.resize(output, (h, w))
     #     output = model.predict(tf.stack([tf_image, tf_image, tf_image, tf_image, tf_image]))
-        out = np.where(output[0, :, :, 0]>0.6, 1, 0)
+        out = np.where(output[0, :, :, 0]>0.4, 1, 0)
         # out = cv2.resize(out, (w, h), cv2.INTER_LINEAR)
         return (out * 255).astype('uint8')
 

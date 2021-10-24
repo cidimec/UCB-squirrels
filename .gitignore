@@ -3,6 +3,7 @@
 *.png
 *.jpeg
 *.ipynb_checkpoints
+*.dat
 __pycache__/
 160x*
 128x*

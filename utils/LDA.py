@@ -4,17 +4,15 @@ import numpy as np
 import cv2
 import os
 
-print(os.getcwd())
+model = load(open('CASIA_model.pkl', 'rb'))
+scaler = load(open('CASIA_scaler.pkl', 'rb'))
+pca = load(open('CASIA_pca.pkl', 'rb'))
 
-# model = load(open('model.pkl', 'rb'))
-# scaler = load(open('scaler.pkl', 'rb'))
-# pca = load(open('pca.pkl', 'rb'))
+# model = load(open('OAKD8S_model.pkl', 'rb'))
+# scaler = load(open('OAKD8S_scaler.pkl', 'rb'))
+# pca = load(open('OAKD8S_pca.pkl', 'rb'))
 
-model = load(open('OAKD8S_model.pkl', 'rb'))
-scaler = load(open('OAKD8S_scaler.pkl', 'rb'))
-pca = load(open('OAKD8S_pca.pkl', 'rb'))
-
-def GEI_generator(sil_file, size=64, debug=False):
+def GEI_generator(sil_file, size=100, debug=False):
     stack_GEI = []
     lenfiles = len(sil_file)
     if debug:
@@ -23,16 +21,17 @@ def GEI_generator(sil_file, size=64, debug=False):
     for idimg, img in enumerate(sil_file):
         if debug:
             plt.subplot((lenfiles //15)+ 1, 15, idimg+ 1)
-
+        biggest = np.zeros_like(img)
         # Silhouette extraction
         contours1, _ = cv2.findContours(img.copy(),cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        cv2.drawContours(img, contours1, -1, 255, -1)
+        cnt=max(contours1, key=cv2.contourArea)
+        cv2.drawContours(biggest, [cnt], -1, 255, -1)
 
         if (len(contours1)>0):
             ncoun= np.concatenate(contours1)[:, 0, :]
             x1, y1 = np.min(ncoun, axis=0)
             x2, y2 = np.max(ncoun, axis=0)
-            silhouette = img[y1:y2, x1:x2]
+            silhouette = biggest[y1:y2, x1:x2]
 
             # Normalizae silhouette
             factor = size/max(silhouette.shape)
@@ -44,7 +43,7 @@ def GEI_generator(sil_file, size=64, debug=False):
                 # We add a background of the shape size x size
                 portion_body = 0.3                                                      # We take the upper part of the body to center the image and avoid the legs
                 moments = cv2.moments(nor_sil[0:int(nor_sil.shape[0]*portion_body),])
-                w = round(moments['m10']/moments['m00'])
+                w = round(moments['m10']/(moments['m00']+1))
                 background = np.zeros((size, size))
                 shift = round((size/2)-w)
                 #         print('center:',w,' shift:',shift)
@@ -64,8 +63,8 @@ def GEI_generator(sil_file, size=64, debug=False):
         print('\tNo Files Found')
     else:
         GEI = np.mean(np.array(stack_GEI), axis=0)
-
-    # GEI[int(size*0.12):int(size*0.68),:]=0
+    if debug: plt.show()
+    GEI[int(size*0.12):int(size*0.68),:]=0
     return GEI, stack_GEI
 
 

@@ -15,11 +15,11 @@ from utils import LDA
 labelMap = ["background", "aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow",
             "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
 # video_path = '/home/israel/Downloads/UCB/clips/090/007/nm/nm-01.avi'
-videoPath = '../data/videos/001-bg-01-090.avi'
-video_path = '/home/israel/Downloads/OAKD_8S/clips/090/002/nm/nm-04.avi'
+# videoPath = '../data/videos/001-bg-01-090.avi'
+# video_path = '/home/israel/Downloads/OAKD_8S/clips/090/002/nm/nm-04.avi'
 
 # video_path = '/home/israel/Downloads/CASIA/DatasetB-2/video/001-bg-01-090.avi'
-# video_path = '/home/israel/Downloads/CASIA/DatasetB-1/video/001-nm-01-090.avi'
+video_path = '/home/israel/Downloads/CASIA/DatasetB-1/video/001-nm-01-090.avi'
 # video_path = '/home/israel/Downloads/OAK2/j3/000-carlos1/nm.mp4'
 input = 'vid'
 
@@ -31,9 +31,11 @@ elif input == 'vid':
     # nn2blob = '/home/israel/Downloads/frozen_graph.blob'
 
 # nn2blob = '../models/unet8shaves.blob'
-nn2blob = '../models/128_CASIA_Best.blob'
-nn2blob = '../models/128UCB.blob'
-
+# nn2blob = '../models/128_CASIA_Best.blob'
+# nn2blob = '../models/128x128_acc_0.blob'
+nn2blob = '../models/128x128_acc_0.blob'
+# nn2blob = '../models/128UCB.blob'
+# nn2blob = '../models/UCB300/128x128unet_acc:0.9540_loss:0.0590_val-acc:0.9538_val-loss:0.0594_0.22M_01-08-21-DB_UCB300_E:10x1E-4:5x1E-5'
 # nn2blob = '../models/64x64unet6shaves.blob'
 # nn2blob = '/home/israel/Downloads/128x128_acc_1.blob'
 color = (255, 0, 0)
@@ -234,8 +236,11 @@ with dai.Device(pipeline) as device:
                 out = inDet.getLayerFp16(lastlayer[0])
                 output = np.array(out).reshape(size, size)
                 norm_image = cv2.normalize(output, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+                # norm_image = cv2.normalize(output,  None, 0, 255, cv2.NORM_MINMAX)
+                # print(cv2.minMaxLoc(norm_image))
+
                 # norm_image = cv2.cvtColor(norm_image, cv2.COLOR_GRAY2RGB)
-                ret, mask = cv2.threshold(norm_image, 150, 255, cv2.THRESH_BINARY)
+                ret, mask = cv2.threshold(norm_image, 70, 255, cv2.THRESH_BINARY)
                 mask = cv2.resize(mask, (w, h), cv2.INTER_CUBIC)
                 mask = mask[5:h-5, 5:w-5]
                 # print(org_size)
@@ -246,12 +251,12 @@ with dai.Device(pipeline) as device:
                 # cv2.imwrite(f'{nsil}.png',mask)
                 nsil +=1
                 if nsil % 10 == 0:
-                    GEI, _ = LDA.GEI_generator(silhouettes)
-                    # cv2.imwrite(f'{nsil}.png',GEI)
+                    GEI, _ = LDA.GEI_generator(silhouettes, debug=False)
+                    cv2.imwrite(f'{nsil}.png',GEI)
                     classID = LDA.inference(GEI)
                     print(classID)
                 # if 10<mask.mean() and mask.mean()<150:
                 cv2.imshow('out', mask)
 
-        if cv2.waitKey(1) == ord('q'):
+        if cv2.waitKey(50) == ord('q'):
             break

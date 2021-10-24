@@ -10,7 +10,7 @@ from utils.backgroundSubtraction import bsub
 # sys.path.append(os.path.abspath('../recognition'))
 
 nnPath = '../models/mobilenet-ssd_openvino_2021.2_8shave.blob'
-videoPath = '/home/israel/Downloads/OAKD_8S/clips/090/001/nm/nm-01.avi'
+videoPath = '/home/israel/Downloads/OAKD_8S/clips/090/001/nm/nm-02.avi'
 id_label = int(videoPath.split('/')[-3])
 view = videoPath.split('/')[-4]
 seq = videoPath.split('/')[-1].split('.')[0]
@@ -88,7 +88,7 @@ if cam_source not in cam_options:
     frame_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
     frame_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     fps = int(cap.get(cv2.CAP_PROP_FPS))
-    delay = int(1000 / fps)
+    delay = int(1000 / (fps+1))
 
 # Input queue will be used to send video frames to the device.
 q_nn_input = device.getOutputQueue(name="input", maxSize=4, blocking=False)
