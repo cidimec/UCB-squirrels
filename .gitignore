@@ -5,6 +5,7 @@
 *.ipynb_checkpoints
 *.dat
 __pycache__/
+GA/
 160x*
 128x*
 extras/

@@ -15,7 +15,10 @@ class bsub:
         self.classID = 0
         self.pred_list = []
         # self.model = tf.keras.models.load_model('../models/bestDB/128x128_acc_0.9471_loss_0.0605_val-acc_0.9476_val-loss_0.0586_0.22M_29-07-21-DB-best')
-        self.model = tf.keras.models.load_model('../models/UCB300/128x128unet_acc:0.9540_loss:0.0590_val-acc:0.9538_val-loss:0.0594_0.22M_01-08-21-DB_UCB300_E:10x1E-4:5x1E-5')
+        # self.model = tf.keras.models.load_model('../models/UCB300/128x128unet_acc:0.9540_loss:0.0590_val-acc:0.9538_val-loss:0.0594_0.22M_01-08-21-DB_UCB300_E:10x1E-4:5x1E-5')
+        self.model = tf.keras.models.load_model('../models/BioSmart/128x128unet_acc_0.9451_loss_0.0845_val-acc_0.9457_val-loss_0.0826_0.22M_24-10-21-DB_UCB300_Epochs_10x1E-4_5x1E-5')
+        self.model = tf.keras.models.load_model('../models/BioSmart/128x128unet_acc_0.9525_loss_0.0641_val-acc_0.9522_val-loss_0.0649_0.59M_24-10-21-DB_UCB300_Epochs_10x1E-4_5x1E-5')
+
         # self.model = tf.keras.models.load_model('../models/UCB300/128x128_acc_0.9549_loss_0.0886_val-acc_0.9554_val-loss_0.0873_0.22M_01-08-21-DB_UCB300_E_10x1E-4_5x1E-5')
 
     def setBackound(self, frame):
@@ -79,6 +82,6 @@ class bsub:
         margin = self.margin
         col1 = col1 - margin if col1 - margin >= 0 else 0
         row1 = row1 - margin if row1 - margin >= 0 else 0
-        col2 = col2 + margin if col2 + margin <= self.width else self.width
-        row2 = row2 + margin if row2 + margin <= self.height else self.height
+        col2 = col2 + 2*margin if col2 + 2*margin <= self.width else self.width
+        row2 = row2 + 2*margin if row2 + 2*margin <= self.height else self.height
         return (col1, row1, col2, row2)

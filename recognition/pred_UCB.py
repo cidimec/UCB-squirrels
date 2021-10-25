@@ -30,10 +30,10 @@ elif input == 'vid':
     nn1blob = '../models/mobilenet-ssd_openvino_2021.2_8shave.blob'
     # nn2blob = '/home/israel/Downloads/frozen_graph.blob'
 
-# nn2blob = '../models/unet8shaves.blob'
+nn2blob = '../models/unet8shaves.blob'
 # nn2blob = '../models/128_CASIA_Best.blob'
 # nn2blob = '../models/128x128_acc_0.blob'
-nn2blob = '../models/128x128_acc_0.blob'
+# nn2blob = '../models/128x128_acc_0.blob'
 # nn2blob = '../models/128UCB.blob'
 # nn2blob = '../models/UCB300/128x128unet_acc:0.9540_loss:0.0590_val-acc:0.9538_val-loss:0.0594_0.22M_01-08-21-DB_UCB300_E:10x1E-4:5x1E-5'
 # nn2blob = '../models/64x64unet6shaves.blob'
@@ -240,7 +240,7 @@ with dai.Device(pipeline) as device:
                 # print(cv2.minMaxLoc(norm_image))
 
                 # norm_image = cv2.cvtColor(norm_image, cv2.COLOR_GRAY2RGB)
-                ret, mask = cv2.threshold(norm_image, 70, 255, cv2.THRESH_BINARY)
+                ret, mask = cv2.threshold(norm_image, 120, 255, cv2.THRESH_BINARY)
                 mask = cv2.resize(mask, (w, h), cv2.INTER_CUBIC)
                 mask = mask[5:h-5, 5:w-5]
                 # print(org_size)
@@ -258,5 +258,5 @@ with dai.Device(pipeline) as device:
                 # if 10<mask.mean() and mask.mean()<150:
                 cv2.imshow('out', mask)
 
-        if cv2.waitKey(50) == ord('q'):
+        if cv2.waitKey(1) == ord('q'):
             break
